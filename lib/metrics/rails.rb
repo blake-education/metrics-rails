@@ -27,10 +27,12 @@ module Metrics
     mattr_accessor :email
     mattr_accessor :flush_interval
     mattr_accessor :prefix
+    mattr_accessor :use_request_evaluator
     
     # config defaults
     self.flush_interval = 60 # seconds
     self.prefix = 'rails'
+    self.use_request_evaluator = true
     
     def_delegators :counters, :increment
     def_delegators :aggregate, :measure, :timing
@@ -132,7 +134,9 @@ module Metrics
         #return unless self.email && self.api_key
         logger.info "[metrics-rails] starting up with #{app_server}..."
         @pid = $$
-        install_request_evaluator
+        if use_request_evaluator
+          install_request_evaluator
+        end
         if forking_server?
           install_worker_check
         else
